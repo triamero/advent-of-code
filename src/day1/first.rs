@@ -1,15 +1,12 @@
-use std::io::BufReader;
-use std::io::BufRead;
-use std::fs::File;
-
-pub fn compute(path_to_data: &str) -> i32 {
-	let f = File::open(path_to_data).unwrap();
-	let file = BufReader::new(&f);
+pub fn compute(input: Vec<String>) -> i32 {
 
 	let mut result: i32 = 0;
 
-	for line in file.lines() {
-		let num : i32 = line.unwrap().parse().unwrap();
+	for line in input {
+		let num:i32 = match line.parse()  {
+			Ok(num) => num,
+			Err(_) => panic!("Unable to parse line")
+		};
 
 		result = result + num;
 	}

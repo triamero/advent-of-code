@@ -1,10 +1,6 @@
-
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
 
-pub fn compute(path_to_data: &str) -> i32 {
+pub fn compute(input: Vec<String>) -> i32 {
 
 	let mut set: HashSet<i32> = HashSet::new();
 	set.insert(0);
@@ -13,11 +9,12 @@ pub fn compute(path_to_data: &str) -> i32 {
 
 	loop {
 
-		let f = File::open(path_to_data).unwrap();
-		let file = BufReader::new(&f);
+		for line in &input {
 
-		for line in file.lines() {
-			let num: i32 = line.unwrap().parse().unwrap();
+			let num: i32 = match line.parse() {
+				Ok(num) => num,
+				Err(_) => panic!("Unable to parse number")
+			};
 
 			result = result + num;
 

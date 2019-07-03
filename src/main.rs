@@ -1,5 +1,6 @@
 mod day1;
 mod day2;
+mod utils;
 
 fn main() {
     println!("Advent of code 2019");

@@ -2,9 +2,15 @@ pub mod first;
 pub mod second;
 
 pub fn compute_first(path_to_data: &str) -> i32 {
-    return first::compute(path_to_data);
+
+    let input: Vec<String> = crate::utils::utils::read_lines(path_to_data);
+
+    return first::compute(input);
 }
 
 pub fn compute_second(path_to_data: &str) -> i32 {
-    return second::compute(path_to_data);
+
+    let input: Vec<String> = crate::utils::utils::read_lines(path_to_data);
+
+    return second::compute(input);
 }
