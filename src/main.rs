@@ -1,27 +1,34 @@
-mod day1;
-mod day2;
+mod days;
 mod utils;
+use days::day::Day;
+use days::day1::Day1;
+use days::day2::Day2;
 
 fn main() {
     println!("Advent of code 2019");
 
-    compute_day1();
-    compute_day2();
-}
+    let days: Vec<&dyn Day> = vec![
+        &Day1(),
+        &Day2()
+    ];
 
-fn compute_day1() {
-    let path = "K:/git/advent-of-code/src/day1/data.txt";
+    println!("The current directory is {}", std::env::current_dir().unwrap().display());
 
-    let first_result = day1::compute_first(path);
-    println!("Day 1, first result {0}", first_result);
+    for day in &days {
+        let name = day.get_name();
 
-    let second_result = day1::compute_second(path);
-    println!("Day 1, second result {0}", second_result);
-}
+        let mut path = String::from("src/resources/");
 
-fn compute_day2(){
-    let path = "K:/git/advent-of-code/src/day2/data.txt";
+        path.insert_str(path.len(), &format!("{}.txt", name));
 
-    let first_result = day2::compute_first(path);
-    println!("Day 2, first result {0}", first_result);
+        println!("Path is {}", path);
+
+        let input = utils::read_lines(&path);
+
+        let value1 = day.compute_first(&input);
+        let value2 = day.compute_second(&input);
+
+        println!("{} first result: {}", name, value1);
+        println!("{} second result: {}", name, value2);
+    }
 }
