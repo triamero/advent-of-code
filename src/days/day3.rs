@@ -1,7 +1,5 @@
 use super::day;
 use super::day_result::DayResult;
-use std::cmp::{max, min};
-use std::collections::HashSet;
 
 pub struct Day3();
 
@@ -13,51 +11,62 @@ impl day::Day for Day3 {
     fn compute_first(&self, input: &Vec<String>) -> DayResult {
         let claims = input.iter().map(|x| Claim::new(x)).collect::<Vec<Claim>>();
 
-        let mut map: HashSet<(i32, i32)> = HashSet::new();
+        let mut fabric = create_fabric();
 
         for c1 in &claims {
-            for c2 in &claims {
-                if c1.id == c2.id {
-                    continue;
-                }
-
-                let points = c1.intersect(c2);
-
-                for point in points {
-                    map.insert(point);
+            for i in c1.top_left.x..c1.bottom_right.x + 1 {
+                for j in c1.top_left.y..c1.bottom_right.y + 1 {
+                    fabric[i as usize][j as usize].claim_ids.push(c1.id);
                 }
             }
         }
 
+        let mut more_than_one_claim_count = 0;
 
-        return DayResult::from_i32(map.len() as i32);
+        for i in 0..1001 {
+            for j in 0..1001 {
+                let count = fabric[i][j].claim_ids.len();
+
+                if count > 1 {
+                    more_than_one_claim_count += 1;
+                }
+            }
+        }
+        return DayResult::from_i32(more_than_one_claim_count);
     }
 
     fn compute_second(&self, input: &Vec<String>) -> DayResult {
         let claims = input.iter().map(|x| Claim::new(x)).collect::<Vec<Claim>>();
 
+        let mut fabric = create_fabric();
+
+        for c1 in &claims {
+            for i in c1.top_left.x..c1.bottom_right.x + 1 {
+                for j in c1.top_left.y..c1.bottom_right.y + 1 {
+                    fabric[i as usize][j as usize].claim_ids.push(c1.id);
+                }
+            }
+        }
         let mut id = -1;
 
         for c1 in &claims {
-            let mut intercect_with_some = false;
+            let mut same_id = true;
 
-            for c2 in &claims {
-                if c1.id == c2.id {
-                    continue;
+            for i in c1.top_left.x..c1.bottom_right.x + 1 {
+                for j in c1.top_left.y..c1.bottom_right.y + 1 {
+                    
+                    if fabric[i as usize][j as usize].claim_ids.len() != 1 {
+                        same_id = false;
+                        break;
+                    }
                 }
 
-                if is_rects_intercect(
-                    &c1.top_left,
-                    &c1.bottom_right,
-                    &c2.top_left,
-                    &c2.bottom_right,
-                ) {
-                    intercect_with_some = true;
+                if !same_id {
                     break;
                 }
             }
 
-            if !intercect_with_some {
+            if same_id {
                 id = c1.id;
                 break;
             }
@@ -88,12 +97,12 @@ impl Claim {
         let sizes: Vec<&str> = splits[3].split('x').collect();
 
         let top_left = Point::new(
-            coords[0].parse::<i32>().unwrap(),
-            coords[1].parse::<i32>().unwrap(),
+            coords[0].parse::<i32>().unwrap() + 1,
+            coords[1].parse::<i32>().unwrap() + 1,
         );
         let bottom_right = Point::new(
-            top_left.x + sizes[0].parse::<i32>().unwrap(),
-            top_left.y + sizes[1].parse::<i32>().unwrap(),
+            top_left.x + sizes[0].parse::<i32>().unwrap() - 1,
+            top_left.y + sizes[1].parse::<i32>().unwrap() - 1,
         );
 
         return Claim {
@@ -103,77 +112,6 @@ impl Claim {
             bottom_right: bottom_right,
         };
     }
-
-    fn intersect(&self, another_claim: &Claim) -> Vec<(i32, i32)> {
-        if !is_rects_intercect(
-            &self.top_left,
-            &self.bottom_right,
-            &another_claim.top_left,
-            &another_claim.bottom_right,
-        ) {
-            return Vec::new();
-        }
-
-        // левая верхняя точка пересечения прямоугольников
-        let top_left = Point::new(
-            min(self.top_left.x, another_claim.top_left.x),
-            min(self.top_left.y, another_claim.top_left.y),
-        );
-        // правая нижняя точка пересечения прямоугольников
-        let bottom_right = Point::new(
-            max(self.bottom_right.x, another_claim.bottom_right.x),
-            max(self.bottom_right.y, another_claim.bottom_right.y),
-        );
-
-        let mut result: Vec<(i32, i32)> = Vec::new();
-
-        for x in top_left.x..bottom_right.x + 1 {
-            for y in top_left.y..bottom_right.y + 1 {
-                result.push((x, y));
-            }
-        }
-
-        return result;
-    }
-}
-
-fn is_rects_intercect(
-    top_left1: &Point,
-    bottom_right1: &Point,
-    top_left2: &Point,
-    bottom_right2: &Point,
-) -> bool {
-    if is_point_intercect_rect(top_left1, bottom_right1, top_left2) {
-        return true;
-    }
-
-    if is_point_intercect_rect(top_left1, bottom_right1, bottom_right2) {
-        return true;
-    }
-
-    let top_right2 = Point::new(bottom_right2.x, top_left2.y);
-
-    if is_point_intercect_rect(top_left1, bottom_right1, &top_right2) {
-        return true;
-    }
-
-    let bottom_left2 = Point::new(top_left2.x, bottom_right2.y);
-
-    if is_point_intercect_rect(top_left1, bottom_right1, &bottom_left2) {
-        return true;
-    }
-
-    return false;
-}
-
-fn is_point_intercect_rect(top_left1: &Point, bottom_right1: &Point, point: &Point) -> bool {
-    if top_left1.x <= point.x && point.x <= bottom_right1.x {
-        if top_left1.y <= point.y && point.y <= bottom_right1.y {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 struct Point {
@@ -185,4 +123,32 @@ impl Point {
     fn new(x: i32, y: i32) -> Point {
         Point { x: x, y: y }
     }
+}
+
+struct Inch {
+    claim_ids: Vec<i32>,
+}
+
+impl Inch {
+    fn new() -> Inch {
+        return Inch {
+            claim_ids: Vec::new(),
+        };
+    }
+}
+
+
+fn create_fabric() -> Vec<Vec<Inch>> {
+    let mut fabric: Vec<Vec<Inch>> = Vec::new();
+
+    for _i in 0..1001 {
+        let mut vec: Vec<Inch> = Vec::new();
+        for _j in 0..1001 {
+
+            vec.push(Inch::new());
+        }
+        fabric.push(vec);
+    }
+
+    fabric
 }
