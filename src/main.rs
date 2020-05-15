@@ -1,5 +1,6 @@
 mod days;
 mod utils;
+use days::day_result::DayResult;
 use days::day::Day;
 use days::day1::Day1;
 use days::day2::Day2;
@@ -7,12 +8,12 @@ use days::day2::Day2;
 fn main() {
     println!("Advent of code 2019");
 
-    let days: Vec<&dyn Day> = vec![
-        &Day1(),
-        &Day2()
-    ];
+    let days: Vec<&dyn Day> = vec![&Day1(), &Day2()];
 
-    println!("The current directory is {}", std::env::current_dir().unwrap().display());
+    println!(
+        "The current directory is {}",
+        std::env::current_dir().unwrap().display()
+    );
 
     for day in &days {
         let name = day.get_name();
@@ -21,14 +22,31 @@ fn main() {
 
         path.insert_str(path.len(), &format!("{}.txt", name));
 
-        println!("Path is {}", path);
-
         let input = utils::read_lines(&path);
 
-        let value1 = day.compute_first(&input);
-        let value2 = day.compute_second(&input);
+        let value1: DayResult = day.compute_first(&input);
+        let value2: DayResult = day.compute_second(&input);
 
-        println!("{} first result: {}", name, value1);
-        println!("{} second result: {}", name, value2);
+        print_result(format!("{} first", name), value1);
+        print_result(format!("{} second", name), value2);
     }
+}
+
+fn print_result(prefix: String, result: DayResult) {
+
+    if let Some(val) = result.ival {
+        print_i32(&prefix, val);
+    }
+
+    if let Some(val) = result.sval {
+        print_string(&prefix, &val);
+    }
+}
+
+fn print_i32(prefix: &str, value: i32) {
+    println!("{} result is {}", prefix, value);
+}
+
+fn print_string(prefix: &str, value: &str) {
+    println!("{} result is {}", prefix, value);
 }
