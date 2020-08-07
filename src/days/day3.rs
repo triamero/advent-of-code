@@ -25,9 +25,7 @@ impl day::Day for Day3 {
 
         for i in 0..1001 {
             for j in 0..1001 {
-                let count = fabric[i][j].claim_ids.len();
-
-                if count > 1 {
+                if fabric[i][j].claim_ids.len() > 1 {
                     more_than_one_claim_count += 1;
                 }
             }

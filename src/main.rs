@@ -5,11 +5,12 @@ use days::day::Day;
 use days::day1::Day1;
 use days::day2::Day2;
 use days::day3::Day3;
+use days::day4::Day4;
 
 fn main() {
     println!("Advent of code 2019");
 
-    let days: Vec<&dyn Day> = vec![&Day1(), &Day2(), &Day3()];
+    let days: Vec<&dyn Day> = vec![&Day1(), &Day2(), &Day3(), &Day4()];
 
     println!(
         "The current directory is {}",
